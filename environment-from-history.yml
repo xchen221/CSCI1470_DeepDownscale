@@ -1,0 +1,11 @@
+name: csci1470-final-project
+channels:
+  - defaults
+dependencies:
+  - python=3.12
+  - cfgrib
+  - xarray
+  - pandas
+  - eccodes
+  - scipy
+prefix: /Users/sauceeeeage/anaconda3/envs/csci1470-final-project
