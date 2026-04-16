@@ -18,8 +18,8 @@ class DownscaleDatasetTElevUrban(Dataset):
         if "elevation" not in ds_topo:
             raise ValueError(f"Missing topo variable 'elevation' in {topo_nc_path}")
 
-        if "urban_fraction_norm" not in ds_urban:
-            raise ValueError(f"Missing urban variable 'urban_fraction_norm' in {urban_nc_path}")
+        if "urban_fraction" not in ds_urban:
+            raise ValueError(f"Missing urban variable 'urban_fraction' in {urban_nc_path}")
 
         # coordinate checks
         dyn_lat = ds_dyn["lat"].values
@@ -44,7 +44,7 @@ class DownscaleDatasetTElevUrban(Dataset):
         y = ds_dyn["y_norm"].values.astype(np.float32)                 # (time, lat, lon)
         mask = ds_dyn["valid_mask"].values.astype(np.float32)          # (lat, lon)
         elevation = ds_topo["elevation"].values.astype(np.float32)     # (lat, lon)
-        urban = ds_urban["urban_fraction_norm"].values.astype(np.float32)  # (lat, lon)
+        urban = ds_urban["urban_fraction"].values.astype(np.float32)  # (lat, lon)
 
         ds_dyn.close()
         ds_topo.close()

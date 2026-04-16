@@ -5,7 +5,7 @@ import torch
 import xarray as xr
 from torch.utils.data import DataLoader
 
-from dataset import DownscaleDataset
+from dataset_t_elev_urban import DownscaleDatasetTElevUrban
 from model_transformer import UNetTransformerDownscale
 
 
@@ -21,10 +21,11 @@ def get_device():
 def main():
     test_path = ".data/downscaling_splits/test_norm.nc"
     topo_path = ".data/ETOPO2/topography_features_on_gridmet_masked_norm.nc"
+    urban_path = ".data/Zenodo/urban_fraction_on_gridmet_masked_norm.nc"
     stats_path = ".data/downscaling_splits/norm_stats.nc"
 
-    checkpoint_path = "outputs/checkpoints/best_transformer_t_elev_oscar.pt"
-    output_path = "outputs/test_predictions_transformer_t_elev_oscar.nc"
+    checkpoint_path = "outputs/checkpoints/best_transformer_t_elev_urban_oscar.pt"
+    output_path = "outputs/test_predictions_transformer_t_elev_urban_oscar.nc"
 
     batch_size = 4
 
@@ -32,7 +33,7 @@ def main():
     print("Using device:", device)
 
     # dataset / loader
-    test_ds = DownscaleDataset(test_path, topo_path)
+    test_ds = DownscaleDatasetTElevUrban(test_path, topo_path, urban_path)
     test_loader = DataLoader(
         test_ds, batch_size=batch_size, shuffle=False, num_workers=0
     )
@@ -40,7 +41,7 @@ def main():
     # model: must match training config exactly
     model = (
         UNetTransformerDownscale(
-            in_channels=2,
+            in_channels=3,
             out_channels=1,
             base_channels=32,
             bottleneck_channels=128,
@@ -98,7 +99,7 @@ def main():
             "lon": ds_test["lon"].values,
         },
         attrs={
-            "description": "Transformer U-Net bottleneck (temperature + elevation) predictions on test set"
+            "description": "Transformer U-Net bottleneck (temperature + elevation + urban) predictions on test set"
         },
     )
 

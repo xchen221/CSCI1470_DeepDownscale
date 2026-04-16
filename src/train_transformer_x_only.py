@@ -4,7 +4,7 @@ import pandas as pd
 import torch
 from torch.utils.data import DataLoader
 
-from dataset import DownscaleDataset
+from dataset_x_only import DownscaleDatasetXOnly
 from model_transformer import UNetTransformerDownscale
 
 
@@ -62,34 +62,31 @@ def run_epoch(model, loader, optimizer, device, train=True):
 def main():
     train_path = ".data/downscaling_splits/train_norm.nc"
     val_path = ".data/downscaling_splits/val_norm.nc"
-    topo_path = ".data/ETOPO2/topography_features_on_gridmet_masked_norm.nc"
 
     batch_size = 4
     lr = 1e-4
     n_epochs = 30
 
     os.makedirs("outputs/checkpoints", exist_ok=True)
-    save_path = "outputs/checkpoints/best_transformer_t_elev_oscar.pt"
-    history_path = "outputs/transformer_t_elev_oscar_loss_history.csv"
+    save_path = "outputs/checkpoints/best_transformer_x_only_oscar.pt"
+    history_path = "outputs/transformer_x_only_oscar_loss_history.csv"
 
     device = get_device()
     print("Using device:", device)
 
-    # try disabling cudnn for debugging illegal memory access
-    # if device.type == "cuda":
-    #     torch.backends.cudnn.enabled = False
-
-    train_ds = DownscaleDataset(train_path, topo_path)
-    val_ds = DownscaleDataset(val_path, topo_path)
+    train_ds = DownscaleDatasetXOnly(train_path)
+    val_ds = DownscaleDatasetXOnly(val_path)
 
     train_loader = DataLoader(
         train_ds, batch_size=batch_size, shuffle=True, num_workers=0
     )
-    val_loader = DataLoader(val_ds, batch_size=batch_size, shuffle=False, num_workers=0)
+    val_loader = DataLoader(
+        val_ds, batch_size=batch_size, shuffle=False, num_workers=0
+    )
 
     model = (
         UNetTransformerDownscale(
-            in_channels=2,
+            in_channels=1,   # T only
             out_channels=1,
             base_channels=32,
             bottleneck_channels=128,
@@ -102,7 +99,7 @@ def main():
         .to(device)
     )
 
-    # sanity check before training
+    # sanity check
     x0, y0, m0 = next(iter(train_loader))
     x0 = x0.float().to(device).contiguous()
 
@@ -113,7 +110,7 @@ def main():
     print("x0 finite:", torch.isfinite(x0).all().item())
     print("x0 min/max:", x0.min().item(), x0.max().item())
 
-    test_conv = torch.nn.Conv2d(2, 32, kernel_size=3, padding=1).float().to(device)
+    test_conv = torch.nn.Conv2d(1, 32, kernel_size=3, padding=1).float().to(device)
     with torch.no_grad():
         z = test_conv(x0[:1])
     print("plain conv output shape:", z.shape)
@@ -123,7 +120,6 @@ def main():
     print("sanity out shape:", yhat0.shape)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-    # optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, mode="min", patience=3, factor=0.2
     )
