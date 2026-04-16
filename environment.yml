@@ -24,4 +24,6 @@ dependencies:
   - dask
   - bottleneck
   - xarray
-prefix: /opt/anaconda3/envs/csci1470
+  - cdsapi
+  - rioxarray
+  - rasterio
