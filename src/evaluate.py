@@ -1,9 +1,12 @@
+import os
+
 import numpy as np
 import torch
+import xarray as xr
 from torch.utils.data import DataLoader
 
 from dataset import DownscaleDataset
-from model_cnn import SimpleCNN
+from model_cnn import UNetDownscale
 
 
 def get_device():
@@ -15,55 +18,78 @@ def get_device():
         return torch.device("cpu")
 
 
-def masked_mae(pred, target, mask):
-    valid = mask > 0.5
-    return np.abs(pred[valid] - target[valid]).mean()
-
-
-def masked_rmse(pred, target, mask):
-    valid = mask > 0.5
-    return np.sqrt(((pred[valid] - target[valid]) ** 2).mean())
-
-
 def main():
-    train_path = ".data/downscaling_splits/train_norm.nc"
-    val_path = ".data/downscaling_splits/val_norm.nc"
+    test_path = ".data/downscaling_splits/test_norm.nc"
     topo_path = ".data/ETOPO2/topography_features_on_gridmet_masked_norm.nc"
+    checkpoint_path = "outputs/checkpoints/best_cnn.pt"
+    output_path = "outputs/test_predictions.nc"
 
     batch_size = 4
-    lr = 1e-3
-    n_epochs = 20
-
-    os.makedirs("outputs/checkpoints", exist_ok=True)
-    save_path = "outputs/checkpoints/best_cnn.pt"
+    num_workers = 0
 
     device = get_device()
     print("Using device:", device)
 
-    train_ds = DownscaleDataset(train_path, topo_path)
-    val_ds = DownscaleDataset(val_path, topo_path)
+    # dataset / loader
+    test_ds = DownscaleDataset(test_path, topo_path)
+    test_loader = DataLoader(
+        test_ds,
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=num_workers,
+    )
 
-    train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True, num_workers=0)
-    val_loader = DataLoader(val_ds, batch_size=batch_size, shuffle=False, num_workers=0)
+    # model
+    model = UNetDownscale(in_channels=2).to(device)
+    model.load_state_dict(torch.load(checkpoint_path, map_location=device))
+    model.eval()
 
-    model = SimpleCNN().to(device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=1e-5)
+    preds = []
 
-    best_val_loss = float("inf")
+    with torch.no_grad():
+        for x, _, _ in test_loader:
+            x = x.to(device)
+            pred = model(x)
+            preds.append(pred.cpu().numpy())
 
-    for epoch in range(1, n_epochs + 1):
-        train_loss = run_epoch(model, train_loader, optimizer, device, train=True)
-        val_loss = run_epoch(model, val_loader, optimizer, device, train=False)
+    preds = np.concatenate(preds, axis=0)   # (time, 1, lat, lon)
+    preds = preds[:, 0, :, :]               # (time, lat, lon)
 
-        print(f"Epoch {epoch:02d} | train_loss={train_loss:.6f} | val_loss={val_loss:.6f}")
+    # read test file to recover metadata and denormalize
+    ds_test = xr.open_dataset(test_path)
+    ds_stats = xr.open_dataset(".data/downscaling_splits/norm_stats.nc")
 
-        if val_loss < best_val_loss:
-            best_val_loss = val_loss
-            torch.save(model.state_dict(), save_path)
-            print(f"Saved best model to {save_path}")
+    y_mean = float(ds_stats["y_mean"].values)
+    y_std = float(ds_stats["y_std"].values)
 
-    print("Training finished.")
-    print("Best val loss:", best_val_loss)
+    # prediction is normalized residual
+    pred_residual = preds * y_std + y_mean
+
+    # reconstruct high-res Tmax prediction
+    pred_tmax_highres = ds_test["tmax_lowres_interp"].values + pred_residual
+
+    ds_out = xr.Dataset(
+        {
+            "pred_residual": (("time", "lat", "lon"), pred_residual.astype(np.float32)),
+            "pred_tmax_highres": (("time", "lat", "lon"), pred_tmax_highres.astype(np.float32)),
+        },
+        coords={
+            "time": ds_test["time"].values,
+            "lat": ds_test["lat"].values,
+            "lon": ds_test["lon"].values,
+        },
+        attrs={
+            "description": "U-Net predictions on test set using low-res Tmax + topography"
+        },
+    )
+
+    os.makedirs("outputs", exist_ok=True)
+
+    if os.path.exists(output_path):
+        os.remove(output_path)
+
+    ds_out.to_netcdf(output_path)
+    print(f"Saved predictions to {output_path}")
 
 
 if __name__ == "__main__":

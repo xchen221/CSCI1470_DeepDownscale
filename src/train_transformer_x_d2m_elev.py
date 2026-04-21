@@ -4,8 +4,8 @@ import pandas as pd
 import torch
 from torch.utils.data import DataLoader
 
-from dataset_rich import DownscaleDatasetRich
-from model_cnn import UNetDownscale
+from dataset_x_d2m_elev import DownscaleDatasetXD2MElev
+from model_transformer import UNetTransformerDownscale
 
 
 def get_device():
@@ -36,8 +36,8 @@ def run_epoch(model, loader, optimizer, device, train=True):
     total_count = 0
 
     for x, y, mask in loader:
-        x = x.to(device)
-        y = y.to(device)
+        x = x.float().to(device).contiguous()
+        y = y.float().to(device)
         mask = mask.to(device)
 
         batch_size = x.size(0)
@@ -66,8 +66,7 @@ def main():
     extra_train_path = ".data/downscaling_splits_extra/train_extra_norm.nc"
     extra_val_path = ".data/downscaling_splits_extra/val_extra_norm.nc"
 
-    topo_path = ".data/ETOPO2/topography_feature_stats_norm.nc"
-    
+    topo_path = ".data/ETOPO2/topography_features_on_gridmet_masked_norm.nc"
 
     batch_size = 16
     lr = 1e-4
@@ -76,22 +75,14 @@ def main():
 
     os.makedirs("outputs/checkpoints", exist_ok=True)
 
-    save_path = "outputs/checkpoints/best_unet_rich.pt"
-    history_path = "outputs/rich_loss_history.csv"
+    save_path = "outputs/checkpoints/best_transformer_x_d2m_elev.pt"
+    history_path = "outputs/transformer_x_d2m_elev_loss_history.csv"
 
     device = get_device()
     print("Using device:", device)
 
-    train_ds = DownscaleDatasetRich(
-        base_nc_path=base_train_path,
-        extra_nc_path=extra_train_path,
-        topo_nc_path=topo_path,
-    )
-    val_ds = DownscaleDatasetRich(
-        base_nc_path=base_val_path,
-        extra_nc_path=extra_val_path,
-        topo_nc_path=topo_path,
-    )
+    train_ds = DownscaleDatasetXD2MElev(base_train_path, extra_train_path, topo_path)
+    val_ds = DownscaleDatasetXD2MElev(base_val_path, extra_val_path, topo_path)
 
     print("Train samples:", len(train_ds))
     print("Val samples:", len(val_ds))
@@ -109,7 +100,36 @@ def main():
         num_workers=num_workers,
     )
 
-    model = UNetDownscale(in_channels=7).to(device)
+    model = (
+        UNetTransformerDownscale(
+            in_channels=3,      # T + d2m + elevation
+            out_channels=1,
+            base_channels=32,
+            bottleneck_channels=128,
+            embed_dim=256,
+            num_heads=8,
+            num_layers=3,
+            dropout=0.1,
+        )
+        .float()
+        .to(device)
+    )
+
+    # optional sanity check
+    x0, y0, m0 = next(iter(train_loader))
+    x0 = x0.float().to(device).contiguous()
+
+    print("sanity x shape:", x0.shape)
+    print("x0 dtype:", x0.dtype)
+    print("x0 device:", x0.device)
+    print("x0 contiguous:", x0.is_contiguous())
+    print("x0 finite:", torch.isfinite(x0).all().item())
+    print("x0 min/max:", x0.min().item(), x0.max().item())
+
+    with torch.no_grad():
+        yhat0 = model(x0[:1])
+    print("sanity out shape:", yhat0.shape)
+
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, mode="min", patience=3, factor=0.2
