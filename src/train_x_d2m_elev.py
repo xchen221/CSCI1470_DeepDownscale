@@ -63,7 +63,7 @@ def main():
 
     topo_path = ".data/ETOPO2/topography_features_on_gridmet_masked_norm.nc"
 
-    batch_size = 16
+    batch_size = 32
     lr = 1e-4
     n_epochs = 20
     num_workers = 0

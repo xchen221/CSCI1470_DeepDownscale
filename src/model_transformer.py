@@ -8,10 +8,10 @@ class DoubleConv(nn.Module):
         super().__init__()
         self.double_conv = nn.Sequential(
             nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1),
-            nn.BatchNorm2d(out_channels),
+            #nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
             nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1),
-            nn.BatchNorm2d(out_channels),
+            #nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
         )
 
@@ -42,9 +42,9 @@ class PositionalEncoding2D(nn.Module):
 class TransformerBottleneck(nn.Module):
     def __init__(
         self,
-        embed_dim=128,
-        num_heads=4,
-        num_layers=2,
+        embed_dim=256,
+        num_heads=8,
+        num_layers=3,
         mlp_ratio=4.0,
         dropout=0.1,
     ):

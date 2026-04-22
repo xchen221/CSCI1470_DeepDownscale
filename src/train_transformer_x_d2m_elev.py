@@ -68,9 +68,9 @@ def main():
 
     topo_path = ".data/ETOPO2/topography_features_on_gridmet_masked_norm.nc"
 
-    batch_size = 16
+    batch_size = 4
     lr = 1e-4
-    n_epochs = 20
+    n_epochs = 30
     num_workers = 0
 
     os.makedirs("outputs/checkpoints", exist_ok=True)
