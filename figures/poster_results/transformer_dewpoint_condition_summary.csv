@@ -1,0 +1,7 @@
+Condition type,Regime,n days,Transformer T+Elev RMSE,Transformer T+Dew Point+Elev RMSE,Dew-point RMSE benefit
+Temperature,Cool,123,1.1515466,1.210372,-0.058825433
+Temperature,Moderate,122,1.0313212,1.0395353,-0.008214102
+Temperature,Hot,123,1.1617278,1.0308452,0.13088256
+Dew-point,Dry,123,1.052986,1.0622364,-0.009250209
+Dew-point,Moderate,122,1.0949599,1.1105998,-0.015639987
+Dew-point,Humid,123,1.197167,1.1084942,0.08867283

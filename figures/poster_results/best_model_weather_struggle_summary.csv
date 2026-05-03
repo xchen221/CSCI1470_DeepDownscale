@@ -1,0 +1,11 @@
+Condition,n days,Mean RMSE
+Cloud cover: very high,37,1.2465426
+Cloud cover: high,123,1.2161958
+Precipitation: high,123,1.1929423
+Precipitation: very high,37,1.1659821
+Wind gust: high,123,1.1217018
+Dew point: high,123,1.1084942
+All days,368,1.093731
+Wind gust: very high,37,1.0921911
+Temp + dew point: hot/humid,84,1.0698133
+Temperature: hot,123,1.0308452

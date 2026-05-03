@@ -1,0 +1,165 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="980" viewBox="0 0 1800 980">
+  <defs>
+    <style>
+      .bg { fill: #fbfbf8; }
+      .title { font: 700 38px Arial, Helvetica, sans-serif; fill: #1f2933; }
+      .subtitle { font: 400 20px Arial, Helvetica, sans-serif; fill: #52616b; }
+      .section { font: 700 18px Arial, Helvetica, sans-serif; fill: #36454f; letter-spacing: .5px; }
+      .block-title { font: 700 19px Arial, Helvetica, sans-serif; fill: #17212b; }
+      .block-text { font: 400 15.5px Arial, Helvetica, sans-serif; fill: #26323d; }
+      .small { font: 400 13.5px Arial, Helvetica, sans-serif; fill: #52616b; }
+      .shape { stroke: #23313d; stroke-width: 2.2; rx: 8; ry: 8; }
+      .input { fill: #d9f0f4; }
+      .enc { fill: #c8e6c9; }
+      .bridge { fill: #f7d7a8; }
+      .transformer { fill: #f4c7d8; }
+      .dec { fill: #d7d9f7; }
+      .out { fill: #ffd6dc; }
+      .note { fill: #ffffff; stroke: #7b8794; stroke-width: 1.6; rx: 8; ry: 8; }
+      .arrow { stroke: #23313d; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .downarrow { stroke: #23313d; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .skip { stroke: #c2410c; stroke-width: 3; fill: none; stroke-dasharray: 9 7; marker-end: url(#arrow-orange); }
+      .flow-label { font: 700 13px Arial, Helvetica, sans-serif; fill: #23313d; }
+      .skip-label { font: 700 13px Arial, Helvetica, sans-serif; fill: #c2410c; }
+      .legend { fill: #ffffff; stroke: #7b8794; stroke-width: 1.4; rx: 8; ry: 8; }
+      .skip-tag { fill: #fff7ed; stroke: #c2410c; stroke-width: 1.8; rx: 6; ry: 6; }
+      .tag-text { font: 700 13px Arial, Helvetica, sans-serif; fill: #c2410c; }
+      .concat-circle { fill: #ffffff; stroke: #c2410c; stroke-width: 2.2; }
+      .concat-plus { font: 700 16px Arial, Helvetica, sans-serif; fill: #c2410c; }
+    </style>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M 0 0 L 12 6 L 0 12 z" fill="#23313d"/>
+    </marker>
+    <marker id="arrow-gray" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M 0 0 L 12 6 L 0 12 z" fill="#6b7280"/>
+    </marker>
+    <marker id="arrow-orange" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M 0 0 L 12 6 L 0 12 z" fill="#c2410c"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1800" height="980"/>
+
+  <text class="title" x="80" y="78">Model 2: U-Net with Transformer Bottleneck</text>
+  <text class="subtitle" x="80" y="113">Convolutional encoder-decoder with global spatial context added by a transformer.</text>
+  <text class="subtitle" x="80" y="140">The transformer operates at the lowest-resolution feature map.</text>
+
+  <text class="section" x="205" y="175">INPUT</text>
+  <text class="section" x="455" y="175">ENCODER</text>
+  <text class="section" x="775" y="175">BOTTLENECK</text>
+  <text class="section" x="1260" y="175">DECODER</text>
+  <text class="section" x="1570" y="175">OUTPUT</text>
+
+  <rect class="shape input" x="80" y="220" width="205" height="125"/>
+  <text class="block-title" x="114" y="258">Input tensor</text>
+  <text class="block-text" x="114" y="289">variable feature inputs</text>
+  <text class="small" x="114" y="315">e.g., Tmax, elevation, urban</text>
+  <text class="small" x="114" y="338">B x C_in x H x W</text>
+
+  <rect class="shape enc" x="360" y="220" width="215" height="125"/>
+  <text class="block-title" x="394" y="258">DoubleConv</text>
+  <text class="block-text" x="394" y="289">feature extraction</text>
+  <text class="small" x="394" y="315">H x W</text>
+
+  <rect class="shape enc" x="640" y="220" width="215" height="125"/>
+  <text class="block-title" x="674" y="258">MaxPool +</text>
+  <text class="block-title" x="674" y="282">DoubleConv</text>
+  <text class="block-text" x="674" y="313">downsample features</text>
+  <text class="small" x="674" y="338">H/2 x W/2</text>
+
+  <rect class="shape enc" x="640" y="430" width="215" height="125"/>
+  <text class="block-title" x="674" y="468">MaxPool +</text>
+  <text class="block-title" x="674" y="492">DoubleConv</text>
+  <text class="block-text" x="674" y="523">deeper features</text>
+  <text class="small" x="674" y="548">H/4 x W/4</text>
+
+  <rect class="shape bridge" x="640" y="640" width="215" height="125"/>
+  <text class="block-title" x="674" y="678">MaxPool +</text>
+  <text class="block-title" x="674" y="702">DoubleConv</text>
+  <text class="block-text" x="674" y="733">lowest-resolution features</text>
+  <text class="small" x="674" y="758">H/8 x W/8</text>
+
+  <rect class="shape transformer" x="925" y="640" width="270" height="125"/>
+  <text class="block-title" x="960" y="678">1x1 projection</text>
+  <text class="block-text" x="960" y="709">project to embedding space</text>
+  <text class="small" x="960" y="735">prepare spatial tokens</text>
+
+  <rect class="shape transformer" x="925" y="430" width="270" height="145"/>
+  <text class="block-title" x="960" y="468">Transformer encoder</text>
+  <text class="block-text" x="960" y="499">3 layers, 8 heads</text>
+  <text class="small" x="960" y="525">2D positional encoding</text>
+  <text class="small" x="960" y="548">tokens: H/8 x W/8</text>
+
+  <rect class="shape transformer" x="925" y="220" width="270" height="125"/>
+  <text class="block-title" x="960" y="258">1x1 projection</text>
+  <text class="block-text" x="960" y="289">project back to feature map</text>
+  <text class="small" x="960" y="315">restore decoder features</text>
+
+  <rect class="shape dec" x="1270" y="640" width="230" height="125"/>
+  <text class="block-title" x="1304" y="678">UpConv + concat</text>
+  <text class="block-text" x="1304" y="709">lowest-resolution features</text>
+  <text class="small" x="1304" y="735">skip from H/4 layer</text>
+  <text class="small" x="1304" y="758">H/4 x W/4</text>
+
+  <rect class="shape dec" x="1270" y="430" width="230" height="125"/>
+  <text class="block-title" x="1304" y="468">UpConv + concat</text>
+  <text class="block-text" x="1304" y="499">upsample features</text>
+  <text class="small" x="1304" y="525">skip from H/2 layer</text>
+  <text class="small" x="1304" y="548">H/2 x W/2</text>
+
+  <rect class="shape dec" x="1270" y="220" width="230" height="125"/>
+  <text class="block-title" x="1304" y="258">UpConv + concat</text>
+  <text class="block-text" x="1304" y="289">refine full-resolution features</text>
+  <text class="small" x="1304" y="315">skip from H layer</text>
+  <text class="small" x="1304" y="338">H x W</text>
+
+  <rect class="shape out" x="1560" y="220" width="205" height="125"/>
+  <text class="block-title" x="1594" y="258">1x1 Conv</text>
+  <text class="block-text" x="1594" y="289">predict target field</text>
+  <text class="small" x="1594" y="315">Downscaled Tmax</text>
+  <text class="small" x="1594" y="338">B x C_out x H x W</text>
+
+  <rect class="legend" x="1325" y="82" width="390" height="78"/>
+  <path class="arrow" d="M 1355 112 L 1420 112"/>
+  <text class="small" x="1435" y="117">main tensor flow</text>
+  <rect class="skip-tag" x="1355" y="128" width="65" height="24"/>
+  <text class="tag-text" x="1365" y="145">skip A</text>
+  <text class="small" x="1435" y="145">copied to matching decoder concat</text>
+
+  <path class="arrow" d="M 285 282 L 352 282"/>
+  <path class="arrow" d="M 575 282 L 632 282"/>
+  <path class="downarrow" d="M 747 345 L 747 420"/>
+  <text class="flow-label" x="767" y="388">downsample</text>
+  <path class="downarrow" d="M 747 555 L 747 630"/>
+  <text class="flow-label" x="767" y="598">downsample</text>
+  <path class="arrow" d="M 855 702 L 917 702"/>
+  <path class="downarrow" d="M 1060 640 L 1060 586"/>
+  <text class="flow-label" x="1080" y="621">tokens</text>
+  <path class="downarrow" d="M 1060 430 L 1060 356"/>
+  <text class="flow-label" x="1080" y="398">project back</text>
+  <path class="arrow" d="M 1195 282 L 1262 282"/>
+  <path class="downarrow" d="M 1385 345 L 1385 420"/>
+  <text class="flow-label" x="1405" y="388">upsample</text>
+  <path class="downarrow" d="M 1385 555 L 1385 630"/>
+  <text class="flow-label" x="1405" y="598">upsample</text>
+  <path class="arrow" d="M 1195 702 L 1262 702"/>
+  <path class="arrow" d="M 1500 282 L 1552 282"/>
+
+  <rect class="skip-tag" x="865" y="492" width="65" height="24"/>
+  <text class="tag-text" x="875" y="509">skip C</text>
+  <circle class="concat-circle" cx="1260" cy="702" r="15"/>
+  <text class="concat-plus" x="1250" y="709">+C</text>
+  <rect class="skip-tag" x="500" y="186" width="65" height="24"/>
+  <text class="tag-text" x="510" y="203">skip A</text>
+  <circle class="concat-circle" cx="1260" cy="282" r="15"/>
+  <text class="concat-plus" x="1250" y="289">+A</text>
+  <rect class="skip-tag" x="865" y="282" width="65" height="24"/>
+  <text class="tag-text" x="875" y="299">skip B</text>
+  <circle class="concat-circle" cx="1260" cy="492" r="15"/>
+  <text class="concat-plus" x="1250" y="499">+B</text>
+
+  <rect class="note" x="80" y="835" width="1685" height="115"/>
+  <text class="block-title" x="115" y="869">Poster note</text>
+  <text class="block-text" x="115" y="899">The transformer operates only at H/8 x W/8 resolution, adding long-range spatial context.</text>
+  <text class="block-text" x="115" y="923">The U-Net decoder then recovers full-resolution structure through upsampling and skip connections.</text>
+</svg>

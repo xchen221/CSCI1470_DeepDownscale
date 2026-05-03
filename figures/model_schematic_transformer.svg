@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1250" viewBox="0 0 2400 1250">
+  <defs>
+    <style>
+  .bg{fill:transparent}
+  .title{font:700 48px Arial,Helvetica,sans-serif;fill:#17212b}
+  .subtitle{font:400 25px Arial,Helvetica,sans-serif;fill:#4b5b66}
+  .section{font:700 25px Arial,Helvetica,sans-serif;fill:#33424e;letter-spacing:.8px}
+  .block-title{font:700 25px Arial,Helvetica,sans-serif;fill:#17212b}
+  .block-main{font:400 22px Arial,Helvetica,sans-serif;fill:#17212b}
+  .block-sub{font:400 19px Arial,Helvetica,sans-serif;fill:#4b5b66}
+  .note{font:400 20px Arial,Helvetica,sans-serif;fill:#4b5b66}
+  .shape{stroke:#17212b;stroke-width:2.5;rx:9;ry:9}
+  .input{fill:#ddf3f7}.enc{fill:#cdebce}.bridge{fill:#f9ddaa}.bot{fill:#f4c7da}.dec{fill:#d7dafa}.out{fill:#ffd5de}
+  .arrow{stroke:#17212b;stroke-width:3;fill:none;marker-end:url(#arrow)}
+  .flow-label{font:700 20px Arial,Helvetica,sans-serif;fill:#17212b}
+  .skip-tag{fill:#fff7ed;stroke:#c2410c;stroke-width:2;rx:6;ry:6}
+  .skip-text{font:700 17px Arial,Helvetica,sans-serif;fill:#c2410c}
+  .concat{fill:#fff;stroke:#c2410c;stroke-width:2.2}
+  .concat-text{font:700 18px Arial,Helvetica,sans-serif;fill:#c2410c}
+  .legend{fill:#fff;stroke:#9aa6b2;stroke-width:1.5;rx:8;ry:8}
+</style>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M0,0 L9,4.5 L0,9 z" fill="#17212b"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="2400" height="1250"/>
+  <text class="title" x="80" y="78">Model 2: U-Net with Transformer Bottleneck</text>
+  <text class="subtitle" x="80" y="118">Three encoder downsamples, transformer at H/8, then three decoder upsamples.</text>
+  <rect class="legend" x="1910" y="48" width="395" height="86"/>
+  <path class="arrow" d="M 1938 80 L 2015 80"/>
+  <text class="block-sub" x="2035" y="87">main tensor flow</text>
+  <rect class="skip-tag" x="1938" y="97" width="92" height="34"/>
+  <text class="skip-text" x="1950" y="121">skip A</text>
+  <text class="block-sub" x="2035" y="118">copied to matching concat</text>
+  <line x1="80" y1="150" x2="2320" y2="150" stroke="#d0d7de" stroke-width="1.5"/>
+
+  <text class="section" x="190" y="198">INPUT</text>
+  <text class="section" x="530" y="198">ENCODER</text>
+  <text class="section" x="1110" y="198">BOTTLENECK</text>
+  <text class="section" x="1785" y="198">DECODER</text>
+  <text class="section" x="2190" y="198">OUTPUT</text>
+
+  <rect class="shape input" x="95" y="250" width="245" height="140"/>
+  <text class="block-title" x="123" y="289">Input tensor</text>
+  <text class="block-main" x="123" y="334">Variable features</text>
+  <text class="block-sub" x="123" y="364">B x C_in x H x W</text>
+  <rect class="shape enc" x="430" y="250" width="255" height="140"/>
+  <text class="block-title" x="458" y="289">DoubleConv</text>
+  <text class="block-main" x="458" y="334">Feature extraction</text>
+  <text class="block-sub" x="458" y="364">H x W</text>
+  <rect class="shape enc" x="770" y="270" width="305" height="165"/>
+  <text class="block-title" x="798" y="309">MaxPool +</text>
+  <text class="block-title" x="798" y="338">DoubleConv</text>
+  <text class="block-main" x="798" y="370">Downsample features</text>
+  <text class="block-sub" x="798" y="400">H/2 x W/2</text>
+  <rect class="shape enc" x="770" y="520" width="305" height="165"/>
+  <text class="block-title" x="798" y="559">MaxPool +</text>
+  <text class="block-title" x="798" y="588">DoubleConv</text>
+  <text class="block-main" x="798" y="620">Deeper features</text>
+  <text class="block-sub" x="798" y="650">H/4 x W/4</text>
+  <rect class="shape bridge" x="770" y="770" width="305" height="165"/>
+  <text class="block-title" x="798" y="809">MaxPool +</text>
+  <text class="block-title" x="798" y="838">DoubleConv</text>
+  <text class="block-main" x="798" y="870">Lowest resolution</text>
+  <text class="block-sub" x="798" y="900">H/8 x W/8</text>
+
+  <rect class="shape bot" x="1150" y="880" width="250" height="145"/>
+  <text class="block-title" x="1178" y="919">1x1 projection</text>
+  <text class="block-main" x="1178" y="964">To embeddings</text>
+  <text class="block-sub" x="1178" y="994">H/8 x W/8 feature map</text>
+  <rect class="shape bot" x="1450" y="880" width="260" height="145"/>
+  <text class="block-title" x="1478" y="919">Transformer</text>
+  <text class="block-main" x="1478" y="964">2D position + attention</text>
+  <text class="block-sub" x="1478" y="994">flattened spatial tokens</text>
+  <rect class="shape bot" x="1760" y="880" width="250" height="145"/>
+  <text class="block-title" x="1788" y="919">1x1 projection</text>
+  <text class="block-main" x="1788" y="964">Back to features</text>
+  <text class="block-sub" x="1788" y="994">H/8 x W/8</text>
+
+  <rect class="shape dec" x="1760" y="660" width="310" height="145"/>
+  <text class="block-title" x="1788" y="699">UpConv +</text>
+  <text class="block-title" x="1788" y="728">concat</text>
+  <text class="block-main" x="1788" y="760">Upsample with skip C</text>
+  <text class="block-sub" x="1788" y="790">H/4 x W/4</text>
+  <rect class="shape dec" x="1760" y="450" width="310" height="145"/>
+  <text class="block-title" x="1788" y="489">UpConv +</text>
+  <text class="block-title" x="1788" y="518">concat</text>
+  <text class="block-main" x="1788" y="550">Upsample with skip B</text>
+  <text class="block-sub" x="1788" y="580">H/2 x W/2</text>
+  <rect class="shape dec" x="1760" y="240" width="310" height="145"/>
+  <text class="block-title" x="1788" y="279">UpConv +</text>
+  <text class="block-title" x="1788" y="308">concat</text>
+  <text class="block-main" x="1788" y="340">Upsample with skip A</text>
+  <text class="block-sub" x="1788" y="370">H x W</text>
+  <rect class="shape out" x="2160" y="240" width="190" height="145"/>
+  <text class="block-title" x="2188" y="279">1x1 Conv</text>
+  <text class="block-main" x="2188" y="324">Target field</text>
+  <text class="block-sub" x="2188" y="354">C_out</text>
+
+  <path class="arrow" d="M 340 320 L 424 320"/>
+  <path class="arrow" d="M 685 320 L 764 320"/>
+  <path class="arrow" d="M 922 435 L 922 512"/>
+  <text class="flow-label" x="952" y="482">downsample</text>
+  <path class="arrow" d="M 922 685 L 922 762"/>
+  <text class="flow-label" x="952" y="732">downsample</text>
+
+  <path class="arrow" d="M 1075 952 L 1144 952"/>
+  <path class="arrow" d="M 1400 952 L 1444 952"/>
+  <path class="arrow" d="M 1710 952 L 1754 952"/>
+  <path class="arrow" d="M 1885 880 L 1885 813"/>
+  <path class="arrow" d="M 1885 660 L 1885 603"/>
+  <path class="arrow" d="M 1885 450 L 1885 393"/>
+  <text class="flow-label" x="1915" y="845">upsample</text>
+  <text class="flow-label" x="1915" y="635">upsample</text>
+  <text class="flow-label" x="1915" y="425">upsample</text>
+  <path class="arrow" d="M 2070 312 L 2154 312"/>
+
+  <rect class="skip-tag" x="610" y="230" width="92" height="34"/>
+  <text class="skip-text" x="622" y="254">skip A</text>
+  <rect class="skip-tag" x="985" y="230" width="92" height="34"/>
+  <text class="skip-text" x="997" y="254">skip B</text>
+  <rect class="skip-tag" x="1100" y="550" width="92" height="34"/>
+  <text class="skip-text" x="1112" y="574">skip C</text>
+  <circle class="concat" cx="1745" cy="732" r="18"/>
+  <text class="concat-text" x="1733" y="738">+C</text>
+  <circle class="concat" cx="1745" cy="522" r="18"/>
+  <text class="concat-text" x="1733" y="528">+B</text>
+  <circle class="concat" cx="1745" cy="312" r="18"/>
+  <text class="concat-text" x="1733" y="318">+A</text>
+
+  <text class="note" x="95" y="1185">Correctness check: after transformer/post-projection at H/8, decoder uses skip C at H/4, skip B at H/2, then skip A at H, matching model_transformer.py.</text>
+  </svg>

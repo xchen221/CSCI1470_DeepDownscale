@@ -1,8 +1,14 @@
-.data/
-outputs/
-*.nc
-*.pt
-*.pth
-*.ckpt
+.DS_Store
 __pycache__/
 .ipynb_checkpoints/
+
+# Local/raw data and large generated arrays.
+.data/
+*.nc
+*.tif
+
+# Keep final metrics and small best-model checkpoints, but ignore large
+# generated prediction artifacts and miscellaneous local output files.
+outputs/*.nc
+outputs/*.DS_Store
+outputs/checkpoints/*.DS_Store
