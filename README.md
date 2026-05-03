@@ -13,6 +13,8 @@ This project studies statistical downscaling of summer daily maximum 2-meter tem
 For a quick review, start with the poster and final report, then use this README
 as a map of the code and experiment artifacts.
 
+The original project proposal is preserved separately in [`PROPOSAL.md`](PROPOSAL.md).
+
 ## Repository Structure
 
 ```text
@@ -24,6 +26,7 @@ as a map of the code and experiment artifacts.
 ├── outputs/              # Small final metric CSVs and best-model checkpoints
 ├── paper/                # Final written report PDF
 ├── poster_xi_chen.jpg    # Required high-resolution horizontal 4:3 poster
+├── PROPOSAL.md           # Original project proposal
 ├── environment.yml       # Full conda environment export
 ├── environment-from-history.yml
 └── req.txt
