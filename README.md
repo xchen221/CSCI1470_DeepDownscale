@@ -44,11 +44,11 @@ Large raw data files and generated NetCDF prediction arrays are intentionally no
 - [`src/dataset_x_only.py`](src/dataset_x_only.py): dataset for the low-resolution-temperature-only ablation.
 - [`src/dataset_x_d2m_elev.py`](src/dataset_x_d2m_elev.py): dataset for low-resolution temperature, dew point, and elevation.
 - [`src/dataset_t_elev_urban.py`](src/dataset_t_elev_urban.py): dataset for low-resolution temperature, elevation, and urban fraction.
-- [`src/utils.py`](src/utils.py): shared helpers used by training/evaluation code.
 
 ### Training Scripts
 
 - [`src/train_cnn.py`](src/train_cnn.py): main U-Net/CNN baseline using low-resolution temperature and topography.
+- [`src/train_transformer.py`](src/train_transformer.py): transformer U-Net bottleneck model using low-resolution temperature and elevation.
 - [`src/train_x_only.py`](src/train_x_only.py): U-Net ablation with only low-resolution temperature input.
 - [`src/train_x_d2m_elev.py`](src/train_x_d2m_elev.py): U-Net variant with dew point and elevation features.
 - [`src/train_unet_t_elev_urban.py`](src/train_unet_t_elev_urban.py): U-Net variant with elevation and urban fraction.
@@ -58,7 +58,15 @@ Large raw data files and generated NetCDF prediction arrays are intentionally no
 
 ### Evaluation And Analysis
 
-- `src/evaluate*.py`: generate test-set predictions for each trained model. These scripts write large `.nc` files locally, which are intentionally excluded from GitHub.
+- [`src/evaluate.py`](src/evaluate.py): evaluate the main U-Net/CNN baseline.
+- [`src/evaluate_transformer.py`](src/evaluate_transformer.py): evaluate the transformer U-Net bottleneck model with temperature and elevation.
+- [`src/evaluate_x_only.py`](src/evaluate_x_only.py): evaluate the low-resolution-temperature-only U-Net ablation.
+- [`src/evaluate_transformer_x_only.py`](src/evaluate_transformer_x_only.py): evaluate the low-resolution-temperature-only transformer ablation.
+- [`src/evaluate_x_d2m_elev.py`](src/evaluate_x_d2m_elev.py): evaluate the U-Net variant with dew point and elevation.
+- [`src/evaluate_transformer_t_elev_d2m.py`](src/evaluate_transformer_t_elev_d2m.py): evaluate the transformer variant with dew point and elevation.
+- [`src/evaluate_unet_t_elev_urban.py`](src/evaluate_unet_t_elev_urban.py): evaluate the U-Net variant with elevation and urban fraction.
+- [`src/evaluate_transformer_t_elev_urban.py`](src/evaluate_transformer_t_elev_urban.py): evaluate the transformer variant with elevation and urban fraction.
+- Evaluation scripts generate test-set prediction `.nc` files locally. These files are intentionally excluded from GitHub because they are large.
 - [`src/feature_importance_rich.py`](src/feature_importance_rich.py): feature/error analysis for the richer predictor set.
 - [`plots/`](plots): notebooks used to compare models, analyze weather-condition performance, and generate final figures.
 - [`plots/make_poster_result_figures.py`](plots/make_poster_result_figures.py): script that generates the poster-ready result panels.
@@ -121,6 +129,7 @@ The main training scripts are in [`src/`](src). Example commands:
 
 ```bash
 python src/train_cnn.py
+python src/train_transformer.py
 python src/train_x_only.py
 python src/train_x_d2m_elev.py
 python src/train_unet_t_elev_urban.py
